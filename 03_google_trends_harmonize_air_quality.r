@@ -1,7 +1,6 @@
-# ============================================================
-# 03_google_trends_harmonize_air_quality.r
+# 03_google_trends_harmonize_air_quality.R
 #
-# PURPOSE:
+# Purpose:
 #   Harmonize Google Trends data while allowing incomplete
 #   DMAs to be dropped.
 #
@@ -20,7 +19,6 @@
 #
 # IMPORTANT:
 #   Incomplete DMAs are expected and DO NOT stop the script.
-# ============================================================
 
 library(dplyr)
 library(tidyr)
@@ -115,6 +113,11 @@ scenario_3 <- run_harmonization_scenario(
 
 failed_transitions <- scenario_3$diagnostics %>%
   filter(!success, reason == "No positive overlap")
+
+failed_overlap_diagnostics <- diagnose_failed_overlaps(
+  raw_data = raw_data,
+  failed_transitions = failed_transitions
+)
 
 cat("\n")
 cat("FAILED TRANSITION OVERLAP DIAGNOSTICS\n")
@@ -312,14 +315,12 @@ for (i in seq_len(nrow(scenario_comparison))) {
     "  Total DMAs: ",
     x$total_dmas,
     "\n",
-    "  Complete DMAs: ",
-    x$complete_data_dmas,
-    "\n",
+    
     "  Harmonized DMAs: ",
     x$harmonized_dmas,
     "\n",
     "  Dropped DMAs: ",
-    x$dropped_dmas,
+    x$failed_dmas,
     "\n",
     "  Percent harmonized: ",
     round(
@@ -330,4 +331,3 @@ for (i in seq_len(nrow(scenario_comparison))) {
     sep = ""
   )
 }
-
